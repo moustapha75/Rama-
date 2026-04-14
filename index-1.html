@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WALMARAM">
+<link rel="manifest" href="manifest.json">
+<title>WALMARAM ADIYAH</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #0d1f3c;
+    --blue: #1a3a6b;
+    --blue2: #1e4d8c;
+    --accent: #2563eb;
+    --accent2: #3b82f6;
+    --gold: #c9a84c;
+    --gold2: #f0c96e;
+    --white: #f0f4ff;
+    --gray: #8899bb;
+    --danger: #e05252;
+    --success: #2ecc88;
+    --warning: #f59e0b;
+    --card: rgba(26,58,107,0.45);
+    --glass: rgba(13,31,60,0.85);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; width: 100%; overflow: hidden; background: var(--navy); color: var(--white); font-family: 'Nunito', sans-serif; }
+
+  /* ───── SPLASH / AUTH ───── */
+  #splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, #050d1a 0%, #0a1f44 60%, #0d2a5e 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    transition: opacity .5s;
+  }
+  #splash .logo-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 3px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(201,168,76,.35);
+    animation: pulse 2.5s infinite;
+  }
+  #splash .logo-ring span { font-size: 2.4rem; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 30px rgba(201,168,76,.3)} 50%{box-shadow:0 0 60px rgba(201,168,76,.6)} }
+  #splash h1 { font-family:'Cinzel',serif; font-size:1.5rem; color:var(--gold); letter-spacing:2px; text-align:center; }
+  #splash p { color:var(--gray); font-size:.8rem; letter-spacing:3px; }
+
+  /* Auth screens */
+  .auth-screen {
+    position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(160deg, #050d1a 0%, #0a1f44 60%, #0d2a5e 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 40px 20px 20px; overflow-y: auto;
+  }
+  .auth-logo { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold); letter-spacing:2px; text-align:center; margin-bottom:30px; }
+  .auth-logo small { display:block; color:var(--gray); font-family:'Nunito',sans-serif; font-size:.7rem; letter-spacing:3px; margin-top:4px; }
+  .auth-card {
+    width:100%; max-width:380px; background:var(--glass);
+    border:1px solid rgba(201,168,76,.2); border-radius:20px;
+    padding:28px 22px; backdrop-filter:blur(12px);
+  }
+  .auth-card h2 { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold2); margin-bottom:22px; text-align:center; }
+  .field { margin-bottom:16px; }
+  .field label { display:block; font-size:.75rem; color:var(--gray); letter-spacing:1px; margin-bottom:6px; text-transform:uppercase; }
+  .field input, .field select {
+    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(100,140,200,.25);
+    border-radius:10px; padding:12px 14px; color:var(--white); font-size:.95rem; font-family:'Nunito',sans-serif;
+    outline:none; transition:.2s;
+  }
+  .field input:focus, .field select:focus { border-color:var(--accent2); background:rgba(255,255,255,.09); }
+  .field select option { background:#0d2040; }
+  .btn {
+    width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer;
+    font-size:1rem; font-weight:700; font-family:'Nunito',sans-serif; letter-spacing:.5px;
+    transition:.2s; margin-top:6px;
+  }
+  .btn-primary { background:linear-gradient(135deg,var(--accent),var(--blue2)); color:#fff; }
+  .btn-primary:active { transform:scale(.97); }
+  .btn-gold { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--navy); }
+  .btn-danger { background:linear-gradient(135deg,#c0392b,var(--danger)); color:#fff; }
+  .btn-outline { background:transparent; border:1.5px solid var(--accent2); color:var(--accent2); }
+  .btn-sm { width:auto; padding:7px 16px; font-size:.8rem; border-radius:8px; margin-top:0; }
+  .auth-link { text-align:center; margin-top:16px; font-size:.82rem; color:var(--gray); }
+  .auth-link span { color:var(--gold2); cursor:pointer; text-decoration:underline; }
+  .msg { text-align:center; font-size:.82rem; padding:8px 12px; border-radius:8px; margin-top:10px; }
+  .msg.error { background:rgba(224,82,82,.15); color:#ff8080; }
+  .msg.success { background:rgba(46,204,136,.15); color:#5fffc0; }
+
+  /* ───── MAIN APP ───── */
+  #app { display:none; height:100%; flex-direction:column; }
+  
+  /* Top bar */
+  .topbar {
+    background:var(--glass); backdrop-filter:blur(12px);
+    padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid rgba(201,168,76,.15); flex-shrink:0;
+  }
+  .topbar .title { font-family:'Cinzel',serif; font-size:.95rem; color:var(--gold); letter-spacing:1.5px; }
+  .topbar .user-badge {
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+  }
+  .avatar { width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; border:2px solid var(--gold); }
+
+  /* Pages */
+  .pages { flex:1; overflow:hidden; position:relative; }
+  .page {
+    position:absolute; inset:0; overflow-y:auto;
+    padding:16px; display:none; flex-direction:column; gap:14px;
+    background: linear-gradient(160deg, #050d1a 0%, #091a3a 60%, #0a2050 100%);
+  }
+  .page.active { display:flex; }
+
+  /* Bottom nav */
+  .bottomnav {
+    background:var(--glass); backdrop-filter:blur(16px);
+    border-top:1px solid rgba(100,140,200,.18);
+    display:flex; flex-shrink:0;
+  }
+  .nav-item {
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:10px 4px 8px; cursor:pointer; transition:.2s; gap:3px;
+    color:var(--gray); font-size:.6rem; letter-spacing:.5px; text-transform:uppercase;
+  }
+  .nav-item .icon { font-size:1.3rem; }
+  .nav-item.active { color:var(--gold2); }
+  .nav-item.active .icon { filter:drop-shadow(0 0 8px var(--gold)); }
+
+  /* Cards */
+  .card {
+    background:var(--card); border:1px solid rgba(100,140,200,.2);
+    border-radius:16px; padding:16px; backdrop-filter:blur(8px);
+  }
+  .card-title { font-size:.7rem; color:var(--gray); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; }
+  
+  /* Stats grid */
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .stat-card {
+    background:rgba(26,58,107,.5); border:1px solid rgba(100,140,200,.2);
+    border-radius:14px; padding:14px 12px; text-align:center;
+  }
+  .stat-card .val { font-size:1.4rem; font-weight:700; color:var(--gold2); font-family:'Cinzel',serif; }
+  .stat-card .lbl { font-size:.65rem; color:var(--gray); margin-top:2px; }
+
+  /* Member list */
+  .member-item {
+    background:rgba(26,58,107,.35); border:1px solid rgba(100,140,200,.15);
+    border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;
+    cursor:pointer; transition:.15s; position:relative;
+  }
+  .member-item:active { transform:scale(.98); background:rgba(37,99,235,.2); }
+  .member-avatar {
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem;
+    border:2px solid;
+  }
+  .member-info { flex:1; min-width:0; }
+  .member-name { font-weight:700; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .member-meta { font-size:.7rem; color:var(--gray); margin-top:2px; }
+  .badge {
+    display:inline-block; padding:2px 8px; border-radius:20px;
+    font-size:.62rem; font-weight:700; letter-spacing:.5px;
+  }
+  .badge-org { background:rgba(37,99,235,.25); color:#7eb3ff; border:1px solid rgba(37,99,235,.3); }
+  .badge-fin { background:rgba(201,168,76,.2); color:var(--gold2); border:1px solid rgba(201,168,76,.25); }
+  .badge-cul { background:rgba(139,92,246,.25); color:#c4b5fd; border:1px solid rgba(139,92,246,.3); }
+  .badge-adm { background:rgba(46,204,136,.2); color:#5fffc0; border:1px solid rgba(46,204,136,.25); }
+  .badge-m { background:rgba(59,130,246,.2); color:#93c5fd; border:1px solid rgba(59,130,246,.25); }
+  .badge-f { background:rgba(236,72,153,.2); color:#f9a8d4; border:1px solid rgba(236,72,153,.25); }
+
+  /* Search bar */
+  .search-bar {
+    display:flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(100,140,200,.2);
+    border-radius:12px; padding:10px 14px;
+  }
+  .search-bar input {
+    flex:1; background:transparent; border:none; outline:none;
+    color:var(--white); font-family:'Nunito',sans-serif; font-size:.9rem;
+  }
+  .search-bar span { color:var(--gray); }
+
+  /* Page title */
+  .page-header { display:flex; align-items:center; justify-content:space-between; }
+  .page-header h2 { font-family:'Cinzel',serif; font-size:1rem; color:var(--gold); }
+
+  /* Collecte */
+  .collecte-member {
+    background:rgba(26,58,107,.4); border:1.5px solid rgba(100,140,200,.2);
+    border-radius:14px; overflow:hidden;
+  }
+  .collecte-member-header {
+    padding:12px 14px; display:flex; align-items:center; gap:10px; cursor:pointer;
+  }
+  .collecte-options {
+    display:none; padding:10px 14px 14px; border-top:1px solid rgba(100,140,200,.1);
+    flex-direction:column; gap:8px;
+  }
+  .collecte-options.open { display:flex; }
+  .amount-btns { display:flex; gap:8px; }
+  .amount-btn {
+    flex:1; padding:9px 6px; border-radius:10px; border:1.5px solid rgba(100,140,200,.25);
+    background:transparent; color:var(--white); font-size:.85rem; font-weight:700;
+    cursor:pointer; transition:.15s; font-family:'Nunito',sans-serif;
+  }
+  .amount-btn.selected { background:linear-gradient(135deg,var(--accent),var(--blue2)); border-color:var(--accent2); }
+  .status-btns { display:flex; gap:8px; }
+  .status-btn {
+    flex:1; padding:9px 6px; border-radius:10px; border:1.5px solid rgba(100,140,200,.2);
+    background:transparent; font-size:.8rem; font-weight:700; cursor:pointer; transition:.15s;
+    font-family:'Nunito',sans-serif;
+  }
+  .status-btn.cotise { border-color:var(--success); color:var(--success); }
+  .status-btn.cotise.sel { background:rgba(46,204,136,.2); }
+  .status-btn.presente { border-color:var(--warning); color:var(--warning); }
+  .status-btn.presente.sel { background:rgba(245,158,11,.15); }
+  .status-btn.absent { border-color:var(--danger); color:var(--danger); }
+  .status-btn.absent.sel { background:rgba(224,82,82,.15); }
+
+  /* Weekly summary row */
+  .week-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 0; border-bottom:1px solid rgba(100,140,200,.1);
+  }
+  .week-row:last-child { border-bottom:none; }
+
+  /* Modal */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:500;
+    display:flex; align-items:flex-end; justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .modal {
+    background:linear-gradient(160deg,#0d1f3c,#071020);
+    border:1px solid rgba(201,168,76,.2); border-radius:22px 22px 0 0;
+    padding:24px 20px 36px; width:100%; max-width:500px;
+    max-height:90vh; overflow-y:auto;
+  }
+  .modal h3 { font-family:'Cinzel',serif; color:var(--gold); margin-bottom:18px; font-size:1rem; }
+  .modal-close { float:right; cursor:pointer; color:var(--gray); font-size:1.3rem; margin-top:-2px; }
+
+  /* Tabs */
+  .tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .tab {
+    flex:1; padding:8px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Nunito',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.5px;
+    background:rgba(255,255,255,.05); color:var(--gray); transition:.2s;
+  }
+  .tab.active { background:linear-gradient(135deg,var(--accent),var(--blue2)); color:#fff; }
+
+  /* Charts */
+  .bar-chart { display:flex; flex-direction:column; gap:8px; }
+  .bar-row { display:flex; align-items:center; gap:8px; }
+  .bar-label { font-size:.7rem; color:var(--gray); width:60px; text-align:right; flex-shrink:0; }
+  .bar-track { flex:1; background:rgba(255,255,255,.06); border-radius:4px; height:18px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:.65rem; font-weight:700; transition:width .5s; }
+  .bar-val { font-size:.7rem; color:var(--white); width:40px; flex-shrink:0; }
+
+  /* Donut */
+  svg.donut { display:block; margin:0 auto; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:3px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:rgba(100,140,200,.3); border-radius:2px; }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+    background:rgba(13,31,60,.95); border:1px solid var(--accent2); border-radius:12px;
+    padding:10px 20px; font-size:.85rem; z-index:9000; transition:opacity .3s;
+    backdrop-filter:blur(8px); white-space:nowrap;
+  }
+
+  .divider { height:1px; background:rgba(100,140,200,.12); }
+  .section-title { font-size:.7rem; color:var(--gray); text-transform:uppercase; letter-spacing:1.5px; }
+  .row { display:flex; gap:8px; }
+  .row .field { flex:1; }
+  .chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:.72rem; background:rgba(37,99,235,.15); border:1px solid rgba(37,99,235,.25); color:var(--accent2); }
+  .empty-state { text-align:center; padding:40px 20px; color:var(--gray); }
+  .empty-state .icon { font-size:3rem; margin-bottom:12px; }
+  .delete-btn { background:transparent; border:none; cursor:pointer; color:var(--danger); font-size:1.1rem; padding:4px; }
+
+  /* Profile menu */
+  .profile-menu {
+    position:fixed; top:56px; right:12px; z-index:400;
+    background:var(--glass); border:1px solid rgba(201,168,76,.2);
+    border-radius:14px; padding:8px; min-width:160px;
+    backdrop-filter:blur(16px); display:none;
+  }
+  .profile-menu.open { display:block; }
+  .pmenu-item { padding:10px 14px; cursor:pointer; border-radius:8px; font-size:.88rem; display:flex; align-items:center; gap:8px; }
+  .pmenu-item:hover { background:rgba(255,255,255,.07); }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo-ring"><span>🕊️</span></div>
+  <h1>WALMARAM ADIYAH</h1>
+  <p>ASSOCIATION • COLLECTE</p>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="auth-screen" style="display:none">
+  <div class="auth-logo">🕊️ WALMARAM ADIYAH <small>SYSTÈME DE GESTION</small></div>
+  <div class="auth-card">
+    <h2>Connexion</h2>
+    <div class="field"><label>Nom d'utilisateur</label><input id="loginUser" type="text" placeholder="Entrez votre nom"></div>
+    <div class="field"><label>Mot de passe</label><input id="loginPass" type="password" placeholder="••••••••"></div>
+    <button class="btn btn-gold" onclick="doLogin()">SE CONNECTER</button>
+    <div id="loginMsg"></div>
+    <div class="auth-link">Pas encore inscrit ? <span onclick="showRegister()">Créer un compte</span></div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="registerScreen" class="auth-screen" style="display:none">
+  <div class="auth-logo">🕊️ WALMARAM ADIYAH <small>NOUVEAU COMPTE</small></div>
+  <div class="auth-card">
+    <h2>Créer un Compte</h2>
+    <div class="field"><label>Nom complet</label><input id="regName" type="text" placeholder="Votre nom complet"></div>
+    <div class="field"><label>Nom d'utilisateur</label><input id="regUser" type="text" placeholder="Choisir un identifiant"></div>
+    <div class="field"><label>Mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
+    <div class="field"><label>Rôle</label>
+      <select id="regRole">
+        <option value="admin">Administrateur</option>
+        <option value="user">Utilisateur</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="doRegister()">CRÉER LE COMPTE</button>
+    <div id="registerMsg"></div>
+    <div class="auth-link">Déjà inscrit ? <span onclick="showLogin()">Se connecter</span></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="title" id="appTitle">🕊️ WALMARAM</div>
+    <div class="user-badge" onclick="toggleProfileMenu()">
+      <div class="avatar" id="userAvatar">?</div>
+    </div>
+  </div>
+
+  <!-- PROFILE MENU -->
+  <div class="profile-menu" id="profileMenu">
+    <div class="pmenu-item" onclick="showPage('profil')">👤 Mon Profil</div>
+    <div class="pmenu-item" onclick="doLogout()">🚪 Déconnexion</div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-home">
+      <div style="text-align:center;padding:8px 0 4px">
+        <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.15rem;letter-spacing:2px;">WALMARAM ADIYAH</div>
+        <div style="font-size:.7rem;color:var(--gray);letter-spacing:2px;margin-top:2px;">TABLEAU DE BORD</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="val" id="dashTotal">0</div><div class="lbl">Membres</div></div>
+        <div class="stat-card"><div class="val" id="dashMois" style="color:var(--success)">0 F</div><div class="lbl">Ce mois</div></div>
+        <div class="stat-card"><div class="val" id="dashAnnee" style="color:var(--accent2)">0 F</div><div class="lbl">Cette année</div></div>
+        <div class="stat-card"><div class="val" id="dashPresents" style="color:var(--warning)">0</div><div class="lbl">Présents (dim.)</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Prochain Dimanche</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div id="nextSunday" style="font-size:.95rem;font-weight:600"></div>
+          <button class="btn btn-sm btn-gold" onclick="showPage('collecte')">Collecte ›</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Répartition Commissions</div>
+        <div class="bar-chart" id="commChart"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">👥 Répartition par Sexe</div>
+        <div id="sexeChart" style="display:flex;gap:16px;align-items:center;justify-content:center;padding:8px 0"></div>
+      </div>
+    </div>
+
+    <!-- MEMBRES -->
+    <div class="page" id="page-membres">
+      <div class="page-header">
+        <h2>👥 Membres</h2>
+        <button class="btn btn-sm btn-gold" onclick="openAddMember()">+ Ajouter</button>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="memberSearch" placeholder="Rechercher un membre..." oninput="renderMembers()">
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="setMemberTab('tous',this)">Tous</button>
+        <button class="tab" onclick="setMemberTab('M',this)">Hommes</button>
+        <button class="tab" onclick="setMemberTab('F',this)">Femmes</button>
+        <button class="tab" onclick="setMemberTab('comm',this)">Commission</button>
+      </div>
+      <div id="memberCommFilter" style="display:none;gap:6px;flex-wrap:wrap" class="row">
+        <button class="btn btn-sm btn-outline" onclick="setCommFilter('Organisation')">Organisation</button>
+        <button class="btn btn-sm btn-outline" onclick="setCommFilter('Finance')">Finance</button>
+        <button class="btn btn-sm btn-outline" onclick="setCommFilter('Culture')">Culture</button>
+        <button class="btn btn-sm btn-outline" onclick="setCommFilter('Administration')">Administration</button>
+        <button class="btn btn-sm" style="background:transparent;border:1px solid #666;color:#aaa;border-radius:8px;padding:7px 12px;font-size:.75rem" onclick="setCommFilter(null)">Tous</button>
+      </div>
+      <div id="memberList"></div>
+    </div>
+
+    <!-- COLLECTE -->
+    <div class="page" id="page-collecte">
+      <div class="page-header">
+        <h2>💰 Collecte</h2>
+        <div style="font-size:.75rem;color:var(--gray)" id="collecteDate"></div>
+      </div>
+      <div class="card" style="padding:12px 14px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="field" style="margin:0;flex:1;min-width:120px">
+            <label style="font-size:.7rem;color:var(--gray);display:block;margin-bottom:4px">DATE</label>
+            <input type="date" id="collecteInputDate" style="background:rgba(255,255,255,.06);border:1px solid rgba(100,140,200,.25);border-radius:8px;padding:8px 10px;color:var(--white);font-family:'Nunito',sans-serif;font-size:.85rem;width:100%;outline:none">
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="saveAllCollecte()" style="margin-top:18px">💾 Sauvegarder</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="collecteSearch" placeholder="Rechercher..." oninput="renderCollecte()">
+      </div>
+      <div id="collecteList"></div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- ANALYSES -->
+    <div class="page" id="page-analyses">
+      <h2 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1rem">📈 Analyses</h2>
+      <div class="tabs">
+        <button class="tab active" onclick="setAnalyseTab('mois',this)">Mensuel</button>
+        <button class="tab" onclick="setAnalyseTab('annee',this)">Annuel</button>
+        <button class="tab" onclick="setAnalyseTab('membres',this)">Par Membre</button>
+        <button class="tab" onclick="setAnalyseTab('absences',this)">Absences</button>
+      </div>
+      <div id="analyseContent"></div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="page" id="page-profil">
+      <h2 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1rem">👤 Mon Profil</h2>
+      <div class="card" id="profilCard"></div>
+      <div style="height:12px"></div>
+      <button class="btn btn-danger" onclick="doLogout()">🚪 Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottomnav">
+    <div class="nav-item active" onclick="showPage('home')" id="nav-home"><div class="icon">🏠</div>Accueil</div>
+    <div class="nav-item" onclick="showPage('membres')" id="nav-membres"><div class="icon">👥</div>Membres</div>
+    <div class="nav-item" onclick="showPage('collecte')" id="nav-collecte"><div class="icon">💰</div>Collecte</div>
+    <div class="nav-item" onclick="showPage('analyses')" id="nav-analyses"><div class="icon">📈</div>Analyses</div>
+  </div>
+</div>
+
+<!-- MODAL ADD/EDIT MEMBER -->
+<div class="modal-overlay" id="memberModal" style="display:none" onclick="closeMemberModal(event)">
+  <div class="modal">
+    <span class="modal-close" onclick="closeMemberModalForce()">✕</span>
+    <h3 id="memberModalTitle">Nouveau Membre</h3>
+    <input type="hidden" id="editMemberId">
+    <div class="row">
+      <div class="field"><label>Nom</label><input id="mNom" type="text" placeholder="Nom de famille"></div>
+      <div class="field"><label>Prénom</label><input id="mPrenom" type="text" placeholder="Prénom"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Commission</label>
+        <select id="mComm">
+          <option value="Organisation">Organisation</option>
+          <option value="Finance">Finance</option>
+          <option value="Culture">Culture</option>
+          <option value="Administration">Administration</option>
+        </select>
+      </div>
+      <div class="field"><label>Sexe</label>
+        <select id="mSexe">
+          <option value="M">Masculin</option>
+          <option value="F">Féminin</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Montant (F)</label>
+        <select id="mMontant">
+          <option value="100">100 F</option>
+          <option value="200">200 F</option>
+          <option value="500">500 F</option>
+        </select>
+      </div>
+      <div class="field"><label>Date d'adhésion</label><input id="mDate" type="date"></div>
+    </div>
+    <div id="memberModalMsg"></div>
+    <button class="btn btn-gold" onclick="saveMember()">ENREGISTRER</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DB
+// ════════════════════════════════════════════════════════
+const DB = {
+  get(k){ try{return JSON.parse(localStorage.getItem('walm_'+k))||null}catch{return null} },
+  set(k,v){ localStorage.setItem('walm_'+k,JSON.stringify(v)) }
+};
+
+function getUsers(){ return DB.get('users')||[] }
+function setUsers(u){ DB.set('users',u) }
+function getMembers(){ return DB.get('members')||[] }
+function setMembers(m){ DB.set('members',m) }
+function getCollectes(){ return DB.get('collectes')||{} }
+function setCollectes(c){ DB.set('collectes',c) }
+function getCurrentUser(){ return DB.get('currentUser') }
+function setCurrentUser(u){ DB.set('currentUser',u) }
+
+// Init default admin
+(function(){
+  const users = getUsers();
+  if(!users.find(u=>u.username==='admin')){
+    users.push({username:'admin',password:'admin123',name:'Administrateur',role:'admin'});
+    setUsers(users);
+  }
+})();
+
+// ════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════
+function showLogin(){
+  document.getElementById('registerScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+function showRegister(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='flex';
+}
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const users=getUsers();
+  const user=users.find(x=>x.username===u&&x.password===p);
+  if(user){ setCurrentUser(user); startApp(); }
+  else { setMsg('loginMsg','Identifiant ou mot de passe incorrect','error'); }
+}
+function doRegister(){
+  const name=document.getElementById('regName').value.trim();
+  const u=document.getElementById('regUser').value.trim();
+  const p=document.getElementById('regPass').value;
+  const role=document.getElementById('regRole').value;
+  if(!name||!u||!p){setMsg('registerMsg','Tous les champs sont requis','error');return;}
+  const users=getUsers();
+  if(users.find(x=>x.username===u)){setMsg('registerMsg','Nom d\'utilisateur déjà pris','error');return;}
+  const newUser={username:u,password:p,name:name,role:role};
+  users.push(newUser); setUsers(users);
+  setMsg('registerMsg','Compte créé avec succès !','success');
+  setTimeout(()=>showLogin(),1200);
+}
+function doLogout(){
+  setCurrentUser(null);
+  document.getElementById('app').style.display='none';
+  document.getElementById('profileMenu').classList.remove('open');
+  showLogin();
+}
+function setMsg(id,txt,type){
+  const el=document.getElementById(id);
+  el.className='msg '+type; el.textContent=txt;
+  setTimeout(()=>el.textContent='',3000);
+}
+
+// ════════════════════════════════════════════════════════
+// APP INIT
+// ════════════════════════════════════════════════════════
+function startApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='none';
+  const app=document.getElementById('app');
+  app.style.display='flex';
+  const cu=getCurrentUser();
+  document.getElementById('userAvatar').textContent=cu.name.charAt(0).toUpperCase();
+  document.getElementById('profilCard').innerHTML=`
+    <div style="text-align:center;padding:12px 0 8px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 12px;border:3px solid var(--gold)">${cu.name.charAt(0).toUpperCase()}</div>
+      <div style="font-size:1.1rem;font-weight:700">${cu.name}</div>
+      <div style="font-size:.75rem;color:var(--gray);margin-top:4px">@${cu.username}</div>
+      <div class="chip" style="margin:10px auto 0;display:inline-flex">${cu.role==='admin'?'👑 Administrateur':'👤 Utilisateur'}</div>
+    </div>
+  `;
+  // set today as collecte date
+  document.getElementById('collecteInputDate').value=todayStr();
+  setNextSunday();
+  updateDashboard();
+  renderMembers();
+  renderCollecte();
+  renderAnalyses();
+  showPage('home');
+}
+
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+let currentPage='home';
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const nav=document.getElementById('nav-'+p);
+  if(nav) nav.classList.add('active');
+  currentPage=p;
+  document.getElementById('profileMenu').classList.remove('open');
+  if(p==='home') updateDashboard();
+  if(p==='collecte') renderCollecte();
+  if(p==='analyses') renderAnalyses();
+}
+function toggleProfileMenu(){
+  document.getElementById('profileMenu').classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.user-badge')&&!e.target.closest('.profile-menu'))
+    document.getElementById('profileMenu').classList.remove('open');
+});
+
+// ════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(d){ if(!d) return ''; const x=new Date(d+'T00:00:00'); return x.toLocaleDateString('fr-FR'); }
+function fmtMoney(n){ return new Intl.NumberFormat('fr-FR').format(n)+' F'; }
+function getMonthKey(d){ return d.slice(0,7); }
+function getYearKey(d){ return d.slice(0,4); }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function setNextSunday(){
+  const now=new Date(); let d=new Date(now);
+  const day=d.getDay(); const diff=day===0?7:7-day;
+  d.setDate(d.getDate()+diff);
+  document.getElementById('nextSunday').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+function showToast(msg,dur=2000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block'; t.style.opacity='1';
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.style.display='none',300); },dur);
+}
+
+function commColor(c){
+  return {Organisation:'badge-org',Finance:'badge-fin',Culture:'badge-cul',Administration:'badge-adm'}[c]||'badge-org';
+}
+function commEmoji(c){
+  return {Organisation:'🔵',Finance:'🟡',Culture:'🟣',Administration:'🟢'}[c]||'⚪';
+}
+function sexeColor(s){ return s==='M'?'#3b82f6':'#ec4899'; }
+function avatarBg(s){ return s==='M'?'rgba(59,130,246,.3)':'rgba(236,72,153,.25)'; }
+
+// ════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════
+function updateDashboard(){
+  const members=getMembers();
+  const collectes=getCollectes();
+  document.getElementById('dashTotal').textContent=members.length;
+  
+  const now=todayStr();
+  const mKey=getMonthKey(now);
+  const yKey=getYearKey(now);
+  
+  let totalMois=0, totalAnnee=0, presents=0;
+  for(const [date,data] of Object.entries(collectes)){
+    for(const [mid,entry] of Object.entries(data)){
+      if(entry.status==='1' && entry.amount){
+        const amt=parseInt(entry.amount);
+        if(getMonthKey(date)===mKey) totalMois+=amt;
+        if(getYearKey(date)===yKey) totalAnnee+=amt;
+      }
+    }
+    // présents du dernier dimanche
+    if(date===now||date===lastSunday()){
+      for(const entry of Object.values(data)){
+        if(entry.status==='1'||entry.status==='0') presents++;
+      }
+    }
+  }
+  document.getElementById('dashMois').textContent=fmtMoney(totalMois);
+  document.getElementById('dashAnnee').textContent=fmtMoney(totalAnnee);
+  document.getElementById('dashPresents').textContent=presents;
+
+  // Commission chart
+  const comms={Organisation:0,Finance:0,Culture:0,Administration:0};
+  members.forEach(m=>{ if(comms[m.commission]!==undefined) comms[m.commission]++; });
+  const total=members.length||1;
+  const colors={'Organisation':'#3b82f6','Finance':'#c9a84c','Culture':'#8b5cf6','Administration':'#2ecc88'};
+  document.getElementById('commChart').innerHTML=Object.entries(comms).map(([c,n])=>`
+    <div class="bar-row">
+      <div class="bar-label">${c.slice(0,4)}.</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/total*100)}%;background:${colors[c]};color:#fff">${n>0?n:''}</div></div>
+      <div class="bar-val">${n}</div>
+    </div>`).join('');
+
+  // Sexe donut
+  const h=members.filter(m=>m.sexe==='M').length;
+  const f=members.filter(m=>m.sexe==='F').length;
+  const tot=h+f||1;
+  const ph=Math.round(h/tot*100); const pf=100-ph;
+  document.getElementById('sexeChart').innerHTML=`
+    <svg class="donut" width="80" height="80" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#3b82f6" stroke-width="3.8"
+        stroke-dasharray="${ph} ${pf}" stroke-dashoffset="25" transform="rotate(-90 18 18)"/>
+      <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#ec4899" stroke-width="3.8"
+        stroke-dasharray="${pf} ${ph}" stroke-dashoffset="${25-ph}" transform="rotate(-90 18 18)"/>
+      <text x="18" y="20.5" text-anchor="middle" fill="#f0f4ff" font-size="5" font-family="Nunito">👥</text>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="chip" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3);color:#7eb3ff">♂ Hommes : <b>${h}</b> (${ph}%)</div>
+      <div class="chip" style="background:rgba(236,72,153,.15);border-color:rgba(236,72,153,.3);color:#f9a8d4">♀ Femmes : <b>${f}</b> (${pf}%)</div>
+    </div>`;
+}
+
+function lastSunday(){
+  const d=new Date(); const day=d.getDay();
+  d.setDate(d.getDate()-day); return d.toISOString().split('T')[0];
+}
+
+// ════════════════════════════════════════════════════════
+// MEMBRES
+// ════════════════════════════════════════════════════════
+let memberTab='tous', commFilter=null;
+function setMemberTab(t,el){
+  memberTab=t;
+  document.querySelectorAll('#page-membres .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  const cf=document.getElementById('memberCommFilter');
+  cf.style.display=t==='comm'?'flex':'none';
+  if(t!=='comm') commFilter=null;
+  renderMembers();
+}
+function setCommFilter(c){ commFilter=c; renderMembers(); }
+
+function renderMembers(){
+  const q=document.getElementById('memberSearch').value.toLowerCase();
+  let members=getMembers();
+  if(q) members=members.filter(m=>(m.nom+' '+m.prenom).toLowerCase().includes(q));
+  if(memberTab==='M') members=members.filter(m=>m.sexe==='M');
+  if(memberTab==='F') members=members.filter(m=>m.sexe==='F');
+  if(memberTab==='comm'&&commFilter) members=members.filter(m=>m.commission===commFilter);
+  
+  const container=document.getElementById('memberList');
+  if(!members.length){
+    container.innerHTML=`<div class="empty-state"><div class="icon">👤</div><div>Aucun membre trouvé</div></div>`;
+    return;
+  }
+  container.innerHTML=members.map(m=>`
+    <div class="member-item" style="margin-bottom:8px" onclick="viewMember('${m.id}')">
+      <div class="member-avatar" style="background:${avatarBg(m.sexe)};border-color:${sexeColor(m.sexe)};color:${sexeColor(m.sexe)}">
+        ${m.nom.charAt(0)}${m.prenom.charAt(0)}
+      </div>
+      <div class="member-info">
+        <div class="member-name">${m.nom} ${m.prenom}</div>
+        <div class="member-meta" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+          <span class="badge ${commColor(m.commission)}">${commEmoji(m.commission)} ${m.commission}</span>
+          <span class="badge ${m.sexe==='M'?'badge-m':'badge-f'}">${m.sexe==='M'?'♂':'♀'} ${m.sexe==='M'?'H':'F'}</span>
+          <span style="font-size:.68rem;color:var(--gold2)">${m.montant} F</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <button class="delete-btn" onclick="event.stopPropagation();deleteMember('${m.id}')">🗑️</button>
+        <button style="background:transparent;border:none;cursor:pointer;color:var(--accent2);font-size:1rem" onclick="event.stopPropagation();editMember('${m.id}')">✏️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAddMember(){
+  document.getElementById('memberModalTitle').textContent='Nouveau Membre';
+  document.getElementById('editMemberId').value='';
+  ['mNom','mPrenom'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mComm').value='Organisation';
+  document.getElementById('mSexe').value='M';
+  document.getElementById('mMontant').value='100';
+  document.getElementById('mDate').value=todayStr();
+  document.getElementById('memberModalMsg').textContent='';
+  document.getElementById('memberModal').style.display='flex';
+}
+
+function editMember(id){
+  const m=getMembers().find(x=>x.id===id); if(!m) return;
+  document.getElementById('memberModalTitle').textContent='Modifier Membre';
+  document.getElementById('editMemberId').value=id;
+  document.getElementById('mNom').value=m.nom;
+  document.getElementById('mPrenom').value=m.prenom;
+  document.getElementById('mComm').value=m.commission;
+  document.getElementById('mSexe').value=m.sexe;
+  document.getElementById('mMontant').value=m.montant;
+  document.getElementById('mDate').value=m.date||todayStr();
+  document.getElementById('memberModal').style.display='flex';
+}
+
+function viewMember(id){
+  const m=getMembers().find(x=>x.id===id); if(!m) return;
+  const collectes=getCollectes();
+  let totalCot=0, nbCot=0, nbPres=0, nbAbs=0;
+  for(const [date,data] of Object.entries(collectes)){
+    const entry=data[id];
+    if(!entry) continue;
+    if(entry.status==='1'){ nbCot++; nbPres++; totalCot+=parseInt(entry.amount||m.montant); }
+    else if(entry.status==='0') nbPres++;
+    else nbAbs++;
+  }
+  // Show simple modal
+  const mo=document.createElement('div');
+  mo.className='modal-overlay';
+  mo.innerHTML=`<div class="modal">
+    <span class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</span>
+    <h3>${m.nom} ${m.prenom}</h3>
+    <div class="stats-grid" style="margin-bottom:14px">
+      <div class="stat-card"><div class="val" style="font-size:1.1rem">${fmtMoney(totalCot)}</div><div class="lbl">Total cotisé</div></div>
+      <div class="stat-card"><div class="val" style="color:var(--success);font-size:1.1rem">${nbCot}</div><div class="lbl">Cotisations</div></div>
+      <div class="stat-card"><div class="val" style="color:var(--warning);font-size:1.1rem">${nbPres}</div><div class="lbl">Présences</div></div>
+      <div class="stat-card"><div class="val" style="color:var(--danger);font-size:1.1rem">${nbAbs}</div><div class="lbl">Absences</div></div>
+    </div>
+    <div class="card" style="font-size:.85rem;line-height:1.9">
+      <div>📋 <b>Commission :</b> <span class="badge ${commColor(m.commission)}">${m.commission}</span></div>
+      <div>⚧ <b>Sexe :</b> ${m.sexe==='M'?'♂ Masculin':'♀ Féminin'}</div>
+      <div>💵 <b>Montant habituel :</b> ${m.montant} F</div>
+      <div>📅 <b>Adhésion :</b> ${fmtDate(m.date)}</div>
+    </div>
+  </div>`;
+  document.body.appendChild(mo);
+}
+
+function saveMember(){
+  const nom=document.getElementById('mNom').value.trim();
+  const prenom=document.getElementById('mPrenom').value.trim();
+  if(!nom||!prenom){ document.getElementById('memberModalMsg').innerHTML='<div class="msg error">Nom et prénom requis</div>'; return; }
+  const members=getMembers();
+  const editId=document.getElementById('editMemberId').value;
+  const data={
+    nom,prenom,
+    commission:document.getElementById('mComm').value,
+    sexe:document.getElementById('mSexe').value,
+    montant:parseInt(document.getElementById('mMontant').value),
+    date:document.getElementById('mDate').value
+  };
+  if(editId){
+    const idx=members.findIndex(m=>m.id===editId);
+    if(idx>-1){ members[idx]={...members[idx],...data}; }
+  } else {
+    data.id=genId(); members.push(data);
+  }
+  setMembers(members);
+  closeMemberModalForce();
+  renderMembers(); updateDashboard();
+  showToast(editId?'✅ Membre modifié':'✅ Membre ajouté');
+}
+
+function deleteMember(id){
+  if(!confirm('Supprimer ce membre ?')) return;
+  const members=getMembers().filter(m=>m.id!==id);
+  setMembers(members);
+  renderMembers(); updateDashboard();
+  showToast('🗑️ Membre supprimé');
+}
+
+function closeMemberModal(e){ if(e.target===e.currentTarget) closeMemberModalForce(); }
+function closeMemberModalForce(){ document.getElementById('memberModal').style.display='none'; }
+
+// ════════════════════════════════════════════════════════
+// COLLECTE
+// ════════════════════════════════════════════════════════
+let openCollecteId=null;
+const tempCollecte={}; // {memberId: {status,amount}}
+
+function renderCollecte(){
+  const date=document.getElementById('collecteInputDate').value||todayStr();
+  document.getElementById('collecteDate').textContent=fmtDate(date);
+  const collectes=getCollectes();
+  const saved=collectes[date]||{};
+  // init temp from saved
+  const members=getMembers();
+  members.forEach(m=>{
+    if(!tempCollecte[m.id]){
+      tempCollecte[m.id]={status:saved[m.id]?.status||'',amount:saved[m.id]?.amount||String(m.montant)};
+    }
+  });
+  
+  const q=document.getElementById('collecteSearch').value.toLowerCase();
+  let list=members;
+  if(q) list=list.filter(m=>(m.nom+' '+m.prenom).toLowerCase().includes(q));
+  
+  const container=document.getElementById('collecteList');
+  if(!list.length){ container.innerHTML=`<div class="empty-state"><div class="icon">💰</div><div>Aucun membre</div></div>`; return; }
+  
+  container.innerHTML=list.map(m=>{
+    const entry=tempCollecte[m.id]||{status:'',amount:String(m.montant)};
+    const statusIcon=entry.status==='1'?'✅':entry.status==='0'?'⚠️':'⬜';
+    const amts=[100,200,500];
+    return `<div class="collecte-member" style="margin-bottom:8px">
+      <div class="collecte-member-header" onclick="toggleCollecte('${m.id}')">
+        <div class="member-avatar" style="width:36px;height:36px;font-size:.85rem;background:${avatarBg(m.sexe)};border-color:${sexeColor(m.sexe)};color:${sexeColor(m.sexe)};border:2px solid">
+          ${m.nom.charAt(0)}${m.prenom.charAt(0)}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:.88rem">${m.nom} ${m.prenom}</div>
+          <div style="font-size:.7rem;color:var(--gray)">${m.commission} • ${m.montant} F</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:1.1rem">${statusIcon}</span>
+          ${entry.status==='1'?`<span style="color:var(--gold2);font-size:.8rem;font-weight:700">${entry.amount} F</span>`:''}
+          <span style="color:var(--gray);font-size:.8rem">${openCollecteId===m.id?'▲':'▼'}</span>
+        </div>
+      </div>
+      <div class="collecte-options ${openCollecteId===m.id?'open':''}" id="copt_${m.id}">
+        <div style="font-size:.72rem;color:var(--gray);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Montant</div>
+        <div class="amount-btns">
+          ${amts.map(a=>`<button class="amount-btn ${entry.amount==a?'selected':''}" onclick="setAmount('${m.id}',${a})">${a} F</button>`).join('')}
+        </div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:8px;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Statut</div>
+        <div class="status-btns">
+          <button class="status-btn cotise ${entry.status==='1'?'sel':''}" onclick="setStatus('${m.id}','1')">✅ Cotise (1)</button>
+          <button class="status-btn presente ${entry.status==='0'?'sel':''}" onclick="setStatus('${m.id}','0')">⚠️ Présent (0)</button>
+          <button class="status-btn absent ${entry.status===''?'sel':''}" onclick="setStatus('${m.id}','')">⬜ Absent</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('collecteInputDate').addEventListener('change',function(){
+  const date=this.value;
+  const collectes=getCollectes();
+  const saved=collectes[date]||{};
+  // reload temp from saved
+  getMembers().forEach(m=>{
+    tempCollecte[m.id]={status:saved[m.id]?.status||'',amount:saved[m.id]?.amount||String(m.montant)};
+  });
+  openCollecteId=null;
+  renderCollecte();
+});
+
+function toggleCollecte(id){
+  openCollecteId=openCollecteId===id?null:id;
+  renderCollecte();
+}
+
+function setAmount(id,a){
+  if(!tempCollecte[id]) tempCollecte[id]={status:'',amount:'100'};
+  tempCollecte[id].amount=String(a);
+  renderCollecte();
+}
+function setStatus(id,s){
+  if(!tempCollecte[id]) tempCollecte[id]={status:'',amount:'100'};
+  tempCollecte[id].status=s;
+  renderCollecte();
+}
+
+function saveAllCollecte(){
+  const date=document.getElementById('collecteInputDate').value||todayStr();
+  const collectes=getCollectes();
+  const dayData={};
+  getMembers().forEach(m=>{
+    const entry=tempCollecte[m.id];
+    if(entry) dayData[m.id]={status:entry.status,amount:entry.amount||String(m.montant)};
+  });
+  collectes[date]=dayData;
+  setCollectes(collectes);
+  updateDashboard();
+  showToast('💾 Collecte sauvegardée pour le '+fmtDate(date));
+}
+
+// ════════════════════════════════════════════════════════
+// ANALYSES
+// ════════════════════════════════════════════════════════
+let analyseTab='mois';
+function setAnalyseTab(t,el){
+  analyseTab=t;
+  document.querySelectorAll('#page-analyses .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderAnalyses();
+}
+
+function renderAnalyses(){
+  const container=document.getElementById('analyseContent');
+  const members=getMembers();
+  const collectes=getCollectes();
+  
+  if(analyseTab==='mois'){
+    // Monthly totals
+    const months={};
+    for(const [date,data] of Object.entries(collectes)){
+      const k=getMonthKey(date);
+      if(!months[k]) months[k]={total:0,cotisants:new Set(),presents:new Set(),absents:new Set()};
+      for(const [mid,entry] of Object.entries(data)){
+        if(entry.status==='1'){ months[k].total+=parseInt(entry.amount||100); months[k].cotisants.add(mid); months[k].presents.add(mid); }
+        else if(entry.status==='0') months[k].presents.add(mid);
+        else months[k].absents.add(mid);
+      }
+    }
+    const sorted=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
+    if(!sorted.length){ container.innerHTML=`<div class="empty-state"><div class="icon">📊</div><div>Aucune donnée</div></div>`; return; }
+    const max=Math.max(...sorted.map(([,v])=>v.total),1);
+    container.innerHTML=`
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">💰 Collectes Mensuelles</div>
+        <div class="bar-chart">
+          ${sorted.slice(0,12).map(([k,v])=>`
+            <div class="bar-row">
+              <div class="bar-label" style="width:70px;font-size:.65rem">${k}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.total/max*100)}%;background:linear-gradient(90deg,var(--accent),var(--gold))">${v.total>0?fmtMoney(v.total):''}</div></div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Détail par Mois</div>
+        ${sorted.slice(0,12).map(([k,v])=>`
+          <div class="week-row">
+            <div><div style="font-size:.85rem;font-weight:600">${k}</div>
+              <div style="font-size:.7rem;color:var(--gray)">${v.cotisants.size} cotisants • ${v.presents.size} présents</div>
+            </div>
+            <div style="text-align:right"><div style="color:var(--gold2);font-weight:700">${fmtMoney(v.total)}</div></div>
+          </div>`).join('')}
+      </div>`;
+  }
+  
+  else if(analyseTab==='annee'){
+    const years={};
+    for(const [date,data] of Object.entries(collectes)){
+      const k=getYearKey(date);
+      if(!years[k]) years[k]={total:0,cotisants:new Set()};
+      for(const [mid,entry] of Object.entries(data)){
+        if(entry.status==='1'){ years[k].total+=parseInt(entry.amount||100); years[k].cotisants.add(mid); }
+      }
+    }
+    const sorted=Object.entries(years).sort((a,b)=>b[0].localeCompare(a[0]));
+    if(!sorted.length){ container.innerHTML=`<div class="empty-state"><div class="icon">📊</div><div>Aucune donnée</div></div>`; return; }
+    container.innerHTML=`
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">📅 Total Annuel</div>
+        ${sorted.map(([k,v])=>`
+          <div class="week-row">
+            <div style="font-size:1rem;font-weight:700;color:var(--gold)">${k}</div>
+            <div style="text-align:right">
+              <div style="color:var(--gold2);font-weight:700;font-size:1.05rem">${fmtMoney(v.total)}</div>
+              <div style="font-size:.7rem;color:var(--gray)">${v.cotisants.size} membres actifs</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+  
+  else if(analyseTab==='membres'){
+    const stats={};
+    members.forEach(m=>{ stats[m.id]={member:m,total:0,nbCot:0,nbPres:0,nbAbs:0}; });
+    for(const [date,data] of Object.entries(collectes)){
+      for(const [mid,entry] of Object.entries(data)){
+        if(!stats[mid]) continue;
+        if(entry.status==='1'){ stats[mid].total+=parseInt(entry.amount||100); stats[mid].nbCot++; stats[mid].nbPres++; }
+        else if(entry.status==='0') stats[mid].nbPres++;
+        else stats[mid].nbAbs++;
+      }
+    }
+    const sorted=Object.values(stats).sort((a,b)=>b.total-a.total);
+    if(!sorted.length){ container.innerHTML=`<div class="empty-state"><div class="icon">👤</div><div>Aucune donnée</div></div>`; return; }
+    container.innerHTML=`<div class="card">
+      <div class="card-title">🏆 Classement des Membres</div>
+      ${sorted.map((s,i)=>`
+        <div class="week-row">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:24px;height:24px;border-radius:50%;background:${i<3?'var(--gold)':'rgba(255,255,255,.08)'};display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:${i<3?'var(--navy)':'var(--gray)'}">${i+1}</div>
+            <div>
+              <div style="font-size:.85rem;font-weight:600">${s.member.nom} ${s.member.prenom}</div>
+              <div style="font-size:.68rem;color:var(--gray)">${s.nbCot} cotis. • ${s.nbPres} prés. • ${s.nbAbs} abs.</div>
+            </div>
+          </div>
+          <div style="color:var(--gold2);font-weight:700;font-size:.85rem">${fmtMoney(s.total)}</div>
+        </div>`).join('')}
+    </div>`;
+  }
+  
+  else if(analyseTab==='absences'){
+    const absStats={};
+    members.forEach(m=>{ absStats[m.id]={member:m,nbAbs:0,nbPres:0,nbCot:0,dates:[]}; });
+    for(const [date,data] of Object.entries(collectes)){
+      for(const [mid,entry] of Object.entries(data)){
+        if(!absStats[mid]) continue;
+        if(entry.status==='') { absStats[mid].nbAbs++; absStats[mid].dates.push(date); }
+        else if(entry.status==='1') absStats[mid].nbCot++;
+        else absStats[mid].nbPres++;
+      }
+    }
+    const sorted=Object.values(absStats).sort((a,b)=>b.nbAbs-a.nbAbs);
+    // Also compute: who cotised, who was present but didn't cotise
+    let allCotise=[], allPres=[], allAbsent=[];
+    const lastDate=Object.keys(getCollectes()).sort().pop();
+    if(lastDate){
+      const dayData=getCollectes()[lastDate]||{};
+      members.forEach(m=>{
+        const e=dayData[m.id];
+        if(!e||e.status==='') allAbsent.push(m);
+        else if(e.status==='1') allCotise.push(m);
+        else allPres.push(m);
+      });
+    }
+    container.innerHTML=`
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">📋 Dernière Session (${lastDate?fmtDate(lastDate):'–'})</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <div class="chip" style="background:rgba(46,204,136,.15);border-color:rgba(46,204,136,.3);color:#5fffc0">✅ Cotisé : ${allCotise.length}</div>
+          <div class="chip" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:#fcd34d">⚠️ Présent : ${allPres.length}</div>
+          <div class="chip" style="background:rgba(224,82,82,.15);border-color:rgba(224,82,82,.3);color:#ff8080">⬜ Absent : ${allAbsent.length}</div>
+        </div>
+        ${allAbsent.length?`<div style="font-size:.75rem;color:var(--danger);margin-top:4px">Absents : ${allAbsent.map(m=>m.nom+' '+m.prenom).join(', ')}</div>`:''}
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Absences Totales par Membre</div>
+        ${sorted.map(s=>`
+          <div class="week-row">
+            <div>
+              <div style="font-size:.85rem;font-weight:600">${s.member.nom} ${s.member.prenom}</div>
+              <div style="font-size:.68rem;color:var(--gray)">${s.nbCot} cotis. • ${s.nbPres} prés. sans cotis.</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:var(--danger);font-weight:700">${s.nbAbs} abs.</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════
+window.addEventListener('load',function(){
+  setTimeout(()=>{
+    document.getElementById('splash').style.opacity='0';
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      const cu=getCurrentUser();
+      if(cu){ startApp(); }
+      else { showLogin(); }
+    },500);
+  },1800);
+});
+</script>
+</body>
+</html>
